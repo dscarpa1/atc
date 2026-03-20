@@ -191,7 +191,7 @@
     document.querySelector('.total-responses') && document.querySelector('.total-responses').remove();
 
     try {
-      const res = await fetch('https://atc-api.6q4gy27sgr.workers.dev/responses');
+      const res = await fetch('/responses');
       if (!res.ok) throw new Error();
       allData = await res.json();
       renderSummary(allData);
