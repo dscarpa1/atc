@@ -253,7 +253,7 @@
     btn.textContent = 'Wird gespeichert…';
 
     try {
-      const res = await fetch('/api/submit', {
+      const res = await fetch('https://atc-api.6q4gy27sgr.workers.dev/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, responses }),
