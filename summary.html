@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TC Angermund – Übersicht (Admin)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1b5e20;
+      color: white;
+      padding: 20px 16px 18px;
+      text-align: center;
+    }
+    header h1 { font-size: 22px; font-weight: 700; }
+    header p  { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+
+    .toolbar {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 14px 16px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-refresh  { background: #1b5e20; color: white; }
+    .btn-download { background: white; color: #1b5e20; border: 2px solid #1b5e20; }
+    .btn:active   { opacity: 0.8; }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .status {
+      text-align: center;
+      color: #777;
+      padding: 32px;
+      font-size: 15px;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .match-num {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #999;
+      margin-bottom: 5px;
+    }
+
+    .match-date {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 3px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+      text-transform: uppercase;
+    }
+    .badge-home { background: #e8f5e9; color: #2e7d32; }
+    .badge-away { background: #e3f2fd; color: #1565c0; }
+
+    .match-vs {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 14px;
+      margin-top: 4px;
+    }
+    .match-vs .us { font-weight: 700; color: #1b5e20; }
+
+    .cols {
+      display: flex;
+      gap: 8px;
+    }
+
+    .col {
+      flex: 1;
+      border-radius: 8px;
+      padding: 10px;
+      min-width: 0;
+    }
+    .col-ja         { background: #e8f5e9; }
+    .col-nein       { background: #ffebee; }
+    .col-vielleicht { background: #fff8e1; }
+
+    .col-header {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .col-ja .col-header         { color: #1b5e20; }
+    .col-nein .col-header       { color: #b71c1c; }
+    .col-vielleicht .col-header { color: #e65100; }
+
+    .col-count {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .col-ja .col-count         { color: #2e7d32; }
+    .col-nein .col-count       { color: #c62828; }
+    .col-vielleicht .col-count { color: #f9a825; }
+
+    .col-names {
+      font-size: 12px;
+      color: #333;
+      line-height: 1.7;
+    }
+
+    .col-names span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .total-responses {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎾 TC Angermund</h1>
+  <p>Medenspiele 2026 – Admin-Übersicht</p>
+</header>
+
+<div class="toolbar">
+  <button class="btn btn-refresh"  onclick="loadData()">↻ Aktualisieren</button>
+  <button class="btn btn-download" onclick="downloadTxt()">⬇ Als Textdatei</button>
+</div>
+
+<div class="container" id="main">
+  <div class="status" id="status">Lade Daten…</div>
+</div>
+
+<script>
+  const matches = [
+    { id: 'match1', date: 'Sa. 09.05.2026, 14:00 Uhr', home: 'Angermunder TC 1',         away: 'TuS Breitscheid 1',    isHome: true  },
+    { id: 'match2', date: 'Sa. 30.05.2026, 14:00 Uhr', home: 'DHC Düsseldorf-Wersten 1', away: 'Angermunder TC 1',     isHome: false },
+    { id: 'match3', date: 'So. 14.06.2026, 09:00 Uhr', home: 'GW Oberkassel 1',          away: 'Angermunder TC 1',     isHome: false },
+    { id: 'match4', date: 'Sa. 20.06.2026, 09:00 Uhr', home: 'Angermunder TC 1',         away: 'GW Hochdahl 1',        isHome: true  },
+    { id: 'match5', date: 'Sa. 04.07.2026, 14:00 Uhr', home: 'DHC Düsseldorf 1',         away: 'Angermunder TC 1',     isHome: false },
+  ];
+
+  let allData = [];
+
+  async function loadData() {
+    document.getElementById('status').textContent = 'Lade Daten…';
+    document.getElementById('status').style.display = 'block';
+
+    // Remove old cards
+    document.querySelectorAll('.summary-card').forEach(el => el.remove());
+    document.querySelector('.total-responses') && document.querySelector('.total-responses').remove();
+
+    try {
+      const res = await fetch('/api/responses');
+      if (!res.ok) throw new Error();
+      allData = await res.json();
+      renderSummary(allData);
+    } catch {
+      document.getElementById('status').textContent = 'Fehler beim Laden der Daten.';
+    }
+  }
+
+  function renderSummary(data) {
+    const container = document.getElementById('main');
+    document.getElementById('status').style.display = 'none';
+
+    const totalDiv = document.createElement('p');
+    totalDiv.className = 'total-responses';
+    totalDiv.textContent = `${data.length} Antwort${data.length !== 1 ? 'en' : ''} eingegangen`;
+    container.insertBefore(totalDiv, container.firstChild);
+
+    matches.forEach((m, i) => {
+      const ja          = data.filter(r => r.responses[m.id] === 'ja');
+      const nein        = data.filter(r => r.responses[m.id] === 'nein');
+      const vielleicht  = data.filter(r => r.responses[m.id] === 'vielleicht');
+
+      const homeHtml = m.isHome  ? `<span class="us">${m.home}</span>` : m.home;
+      const awayHtml = !m.isHome ? `<span class="us">${m.away}</span>` : m.away;
+      const badge    = m.isHome
+        ? '<span class="badge badge-home">Heim</span>'
+        : '<span class="badge badge-away">Auswärts</span>';
+
+      const card = document.createElement('div');
+      card.className = 'summary-card';
+      card.innerHTML = `
+        <div class="match-num">Spiel ${i + 1}</div>
+        <div class="match-date">${m.date}${badge}</div>
+        <div class="match-vs">${homeHtml} vs. ${awayHtml}</div>
+        <div class="cols">
+          <div class="col col-ja">
+            <div class="col-header">✓ Ja</div>
+            <div class="col-count">${ja.length}</div>
+            <div class="col-names">${ja.map(r => `<span>${r.name}</span>`).join('') || '<span style="color:#aaa">–</span>'}</div>
+          </div>
+          <div class="col col-nein">
+            <div class="col-header">✗ Nein</div>
+            <div class="col-count">${nein.length}</div>
+            <div class="col-names">${nein.map(r => `<span>${r.name}</span>`).join('') || '<span style="color:#aaa">–</span>'}</div>
+          </div>
+          <div class="col col-vielleicht">
+            <div class="col-header">? Weiß nicht</div>
+            <div class="col-count">${vielleicht.length}</div>
+            <div class="col-names">${vielleicht.map(r => `<span>${r.name}</span>`).join('') || '<span style="color:#aaa">–</span>'}</div>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function downloadTxt() {
+    if (!allData.length) { alert('Keine Daten zum Exportieren.'); return; }
+
+    const labels = { ja: 'Ja', nein: 'Nein', vielleicht: 'Weiß nicht' };
+    let txt = 'TC Angermund – Medenspiele 2026\n';
+    txt += 'Verfügbarkeitsübersicht\n';
+    txt += '='.repeat(40) + '\n\n';
+
+    matches.forEach((m, i) => {
+      const opponent = m.isHome ? m.away : m.home;
+      const loc = m.isHome ? 'Heim' : 'Auswärts';
+      txt += `Spiel ${i + 1}: ${m.date} (${loc} vs. ${opponent})\n`;
+      txt += '-'.repeat(40) + '\n';
+
+      ['ja', 'nein', 'vielleicht'].forEach(key => {
+        const names = allData.filter(r => r.responses[m.id] === key).map(r => r.name);
+        txt += `  ${labels[key]} (${names.length}): ${names.join(', ') || '–'}\n`;
+      });
+      txt += '\n';
+    });
+
+    txt += '='.repeat(40) + '\n';
+    txt += `Erstellt: ${new Date().toLocaleString('de-DE')}\n`;
+    txt += `Gesamt: ${allData.length} Antworten\n`;
+
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'angermund-verfuegbarkeit.txt';
+    a.click();
+  }
+
+  loadData();
+</script>
+</body>
+</html>

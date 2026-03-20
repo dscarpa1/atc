@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>TC Angermund – Verfügbarkeit 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1b5e20;
+      color: white;
+      padding: 20px 16px 18px;
+      text-align: center;
+    }
+    header h1 { font-size: 22px; font-weight: 700; }
+    header p  { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Name card */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .card input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .card input[type="text"]:focus { border-color: #2e7d32; }
+
+    /* Match card */
+    .match-num {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #999;
+      margin-bottom: 5px;
+    }
+
+    .match-date {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 3px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-home { background: #e8f5e9; color: #2e7d32; }
+    .badge-away { background: #e3f2fd; color: #1565c0; }
+
+    .match-vs {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 14px;
+      margin-top: 4px;
+    }
+    .match-vs .us { font-weight: 700; color: #1b5e20; }
+
+    /* Response buttons */
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .resp-btn {
+      flex: 1;
+      padding: 13px 4px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .resp-btn:active { transform: scale(0.95); }
+
+    .resp-btn.sel-ja        { background: #e8f5e9; border-color: #2e7d32; color: #1b5e20; }
+    .resp-btn.sel-nein      { background: #ffebee; border-color: #c62828; color: #b71c1c; }
+    .resp-btn.sel-vielleicht{ background: #fff8e1; border-color: #f9a825; color: #e65100; }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: #1b5e20;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .submit-btn:active   { background: #145214; }
+    .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* Errors */
+    .err {
+      color: #c62828;
+      font-size: 13px;
+      margin-top: 7px;
+      display: none;
+    }
+    .err.show { display: block; }
+
+    /* Success */
+    #success-area {
+      display: none;
+      text-align: center;
+      padding: 48px 20px;
+    }
+    #success-area .icon { font-size: 64px; margin-bottom: 16px; }
+    #success-area h2    { font-size: 22px; color: #1b5e20; margin-bottom: 8px; }
+    #success-area p     { color: #555; font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎾 TC Angermund</h1>
+  <p>Medenspiele 2026 – Verfügbarkeit</p>
+</header>
+
+<div class="container">
+
+  <div id="form-area">
+    <div class="card">
+      <label for="player-name">Dein Name</label>
+      <input type="text" id="player-name" placeholder="Vor- und Nachname" autocomplete="name">
+      <div class="err" id="err-name">Bitte gib deinen Namen ein.</div>
+    </div>
+
+    <div id="matches-container"></div>
+
+    <div class="err" id="err-matches" style="margin-bottom:12px;">Bitte beantworte alle Spiele.</div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">Absenden</button>
+  </div>
+
+  <div id="success-area">
+    <div class="icon">✅</div>
+    <h2>Danke!</h2>
+    <p>Deine Verfügbarkeit wurde gespeichert.</p>
+  </div>
+
+</div>
+
+<script>
+  const matches = [
+    { id: 'match1', date: 'Sa. 09.05.2026, 14:00 Uhr', home: 'Angermunder TC 1', away: 'TuS Breitscheid 1',         isHome: true  },
+    { id: 'match2', date: 'Sa. 30.05.2026, 14:00 Uhr', home: 'DHC Düsseldorf-Wersten 1', away: 'Angermunder TC 1', isHome: false },
+    { id: 'match3', date: 'So. 14.06.2026, 09:00 Uhr', home: 'GW Oberkassel 1',          away: 'Angermunder TC 1', isHome: false },
+    { id: 'match4', date: 'Sa. 20.06.2026, 09:00 Uhr', home: 'Angermunder TC 1',         away: 'GW Hochdahl 1',    isHome: true  },
+    { id: 'match5', date: 'Sa. 04.07.2026, 14:00 Uhr', home: 'DHC Düsseldorf 1',         away: 'Angermunder TC 1', isHome: false },
+  ];
+
+  const responses = {};
+
+  function renderMatches() {
+    const container = document.getElementById('matches-container');
+    matches.forEach((m, i) => {
+      const homeHtml = m.isHome  ? `<span class="us">${m.home}</span>` : m.home;
+      const awayHtml = !m.isHome ? `<span class="us">${m.away}</span>` : m.away;
+      const badge    = m.isHome
+        ? '<span class="badge badge-home">Heim</span>'
+        : '<span class="badge badge-away">Auswärts</span>';
+
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.id = 'card-' + m.id;
+      div.innerHTML = `
+        <div class="match-num">Spiel ${i + 1}</div>
+        <div class="match-date">${m.date}${badge}</div>
+        <div class="match-vs">${homeHtml} vs. ${awayHtml}</div>
+        <div class="btn-group">
+          <button class="resp-btn" onclick="select('${m.id}','ja',this)">✓ Ja</button>
+          <button class="resp-btn" onclick="select('${m.id}','nein',this)">✗ Nein</button>
+          <button class="resp-btn" onclick="select('${m.id}','vielleicht',this)">? Weiß nicht</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function select(matchId, value, btn) {
+    responses[matchId] = value;
+    const card = document.getElementById('card-' + matchId);
+    card.querySelectorAll('.resp-btn').forEach(b => b.className = 'resp-btn');
+    btn.classList.add('sel-' + value);
+  }
+
+  async function submitForm() {
+    const name = document.getElementById('player-name').value.trim();
+
+    const errName = document.getElementById('err-name');
+    if (!name) { errName.classList.add('show'); return; }
+    errName.classList.remove('show');
+
+    const allAnswered = matches.every(m => responses[m.id]);
+    const errMatches  = document.getElementById('err-matches');
+    if (!allAnswered) { errMatches.classList.add('show'); return; }
+    errMatches.classList.remove('show');
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Wird gespeichert…';
+
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, responses }),
+      });
+      if (!res.ok) throw new Error();
+      document.getElementById('form-area').style.display   = 'none';
+      document.getElementById('success-area').style.display = 'block';
+    } catch {
+      btn.disabled = false;
+      btn.textContent = 'Absenden';
+      alert('Fehler beim Speichern. Bitte versuche es erneut.');
+    }
+  }
+
+  renderMatches();
+</script>
+</body>
+</html>
