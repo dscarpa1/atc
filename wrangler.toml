@@ -1,0 +1,10 @@
+name = "atc"
+main = "_worker.js"
+compatibility_date = "2025-09-27"
+
+[assets]
+directory = "."
+
+[[kv_namespaces]]
+binding = "RESPONSES"
+id = "c80f8d24f723434bb37afc47c7937d46"
